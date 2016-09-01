@@ -1,9 +1,11 @@
-import {Injectable} from '@angular/core';
-import {Subject, BehaviorSubject} from 'rxjs/Rx';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs/Rx';
 
-export interface Check {
-    id: any;
-    name: string;
+export class Check {
+
+    constructor(
+        public id: any,
+        public name: string) { }
 }
 
 @Injectable()
