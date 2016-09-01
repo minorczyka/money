@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CheckService } from '../shared';
-import { Check } from '../shared';
+import { CheckService, Check } from '../shared/check.service';
 import { Observable } from 'rxjs/Rx';
 
 @Component({
     selector: 'my-home',
-    providers: [CheckService],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss']
 })
