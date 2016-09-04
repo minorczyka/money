@@ -1,18 +1,4 @@
--- Database generated with pgModeler (PostgreSQL Database Modeler).
--- pgModeler  version: 0.8.1
--- PostgreSQL version: 9.4
--- Project Site: pgmodeler.com.br
--- Model Author: ---
-
-
--- Database creation must be done outside an multicommand file.
--- These commands were put in this file only for convenience.
--- -- object: money | type: DATABASE --
--- -- DROP DATABASE IF EXISTS money;
--- CREATE DATABASE money
--- ;
--- -- ddl-end --
--- 
+# --- !Ups
 
 -- object: public."user" | type: TABLE --
 -- DROP TABLE IF EXISTS public."user" CASCADE;
@@ -114,4 +100,4 @@ REFERENCES public.person (id) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
 
-
+# --- !Downs

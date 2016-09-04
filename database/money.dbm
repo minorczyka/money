@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.1" last-position="1,3" last-zoom="1"
+<dbmodel pgmodeler-ver="0.8.1" last-position="0,0" last-zoom="1"
 	 default-schema="public" default-owner="postgres">
 <database name="money">
 </database>
@@ -14,9 +14,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="user">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="420" y="160"/>
+	<position x="374" y="157"/>
 	<column name="id" not-null="true">
-		<type name="integer"/>
+		<type name="serial"/>
 	</column>
 	<column name="username" not-null="true">
 		<type name="text"/>
@@ -35,9 +35,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="room">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="701" y="160"/>
+	<position x="707" y="161"/>
 	<column name="id" not-null="true">
-		<type name="integer"/>
+		<type name="serial"/>
 	</column>
 	<column name="name" not-null="true">
 		<type name="text"/>
@@ -48,31 +48,14 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<constraint name="room_pk" type="pk-constr" table="public.room">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
-
-	<customidxs object-type="column">
-		<object name="id_user" index="3"/>
-	</customidxs>
-
-	<customidxs object-type="constraint">
-		<object name="user_fk" index="1"/>
-	</customidxs>
 </table>
-
-<relationship name="user_has_many_bill" type="rel1n"
-	 src-col-pattern="{sc}_{st}"
-	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
-	 src-fk-pattern="{st}_fk"
-	 custom-color="#e908aa"
-	 src-table="public.&quot;user&quot;"
-	 dst-table="public.room"
-	 src-required="true" dst-required="false"/>
 
 <table name="person">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="700" y="360"/>
 	<column name="id" not-null="true">
-		<type name="integer"/>
+		<type name="serial"/>
 	</column>
 	<column name="name" not-null="true">
 		<type name="text"/>
@@ -96,7 +79,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<role name="postgres"/>
 	<position x="1003" y="359"/>
 	<column name="id" not-null="true">
-		<type name="integer"/>
+		<type name="serial"/>
 	</column>
 	<column name="amount" not-null="true">
 		<type name="money"/>
@@ -142,5 +125,20 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="public.person"
 	 dst-table="public.bill"
 	 src-required="true" dst-required="false"/>
+
+<relationship name="many_user_has_many_room" type="relnn"
+	 src-col-pattern="{sc}_{st}" dst-col-pattern="{sc}_{dt}"
+	 pk-pattern="{gt}_pk" uq-pattern="{gt}_uq"
+	 src-fk-pattern="{st}_fk" dst-fk-pattern="{dt}_fk"
+	 pk-col-pattern="id"
+	 custom-color="#13b143"
+	 src-table="public.&quot;user&quot;"
+	 dst-table="public.room"
+	 src-required="false" dst-required="false"
+	 table-name="many_user_has_many_room">
+	<column name="creator" not-null="true" default-value="false">
+		<type name="bool"/>
+	</column>
+</relationship>
 
 </dbmodel>
