@@ -42,7 +42,7 @@ router.post('/signUp', function(req, res, next) {
 
 router.post('/signIn', function(req, res, next) {
   if (!req.body.username || !req.body.password) {
-    res.status(404).send();
+    res.status(400).send();
     return;
   }
   User.findOne({ username: req.body.username }, function(err, user) {

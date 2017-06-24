@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
-import { createStore, combineReducers } from 'redux';
-import { Provider } from 'react-redux';
+import { Router, Scene } from 'react-native-router-flux';
 
-import App from './app/App'
-import * as reducers from './app/reducers';
+import Login from './login/Login'
 
-const reducer = combineReducers(reducers);
-const store = createStore(reducer);
-
-export default Main = () => {
+const Main = () => {
   return (
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <Router>
+      <Scene key="root">
+        <Scene key="pageOne" component={Login} title="PageOne" initial={true} />
+        <Scene key="pageTwo" component={Login} title="PageTwo" />
+      </Scene>
+    </Router>
   );
 }
+
+export default Main
