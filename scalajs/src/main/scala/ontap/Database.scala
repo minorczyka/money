@@ -1,6 +1,8 @@
 package ontap
 
+import firebase.database.Reference
 import firebase.{Firebase, FirebaseConfig, User, UserInfo}
+import ontap.home.Group
 
 import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
@@ -17,8 +19,6 @@ object Database {
   )
 
   private val app = Firebase.initializeApp(firebaseConfig, "money-cb2f0")
-
-  private val database = Firebase.database(app)
 
   private val auth = Firebase.auth(app)
 
@@ -57,7 +57,7 @@ object Database {
     promise.future
   }
 
-  def isLogged(): Boolean = {
+  def isLogged: Boolean = {
     auth.currentUser != null
   }
 
@@ -71,5 +71,33 @@ object Database {
 
   def logOut(): Unit = {
     auth.signOut()
+  }
+
+  private val database = Firebase.database(app)
+
+  def createGroup(name: String) = {
+    loggedUser() match {
+      case Some(user) =>
+        val groups = database.ref("groups")
+        val newGroup = groups.push(name)
+        database.ref(s"user/${user.uid}/groups/${newGroup.key}").set(name)
+      case None => println("There is no user!")
+    }
+  }
+
+  def observeGroups(f: (Seq[Group] => Unit)): Option[Reference] = {
+    loggedUser() match {
+      case Some(user) =>
+        val groupsRef = database.ref(s"user/${user.uid}/groups")
+        groupsRef.on("value", (snapshot, _) => {
+          val values = snapshot.`val`().asInstanceOf[js.Dictionary[Any]]
+          val groups = values.map(i => Group(i._1, i._2.asInstanceOf[String])).toSeq
+          f(groups)
+        })
+        Some(groupsRef)
+      case None =>
+        println("There is no user!")
+        None
+    }
   }
 }

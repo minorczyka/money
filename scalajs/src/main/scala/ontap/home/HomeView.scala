@@ -1,21 +1,81 @@
 package ontap.home
 
+import diode.data._
+import diode.react.ModelProxy
+import firebase.database.Reference
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
-import ontap.{AppPage}
+import ontap.shared.SharedView
+import ontap.{AppCircuit, AppPage, Database, GroupPage}
+import org.scalajs.dom.raw.HTMLInputElement
 
 object HomeView {
 
-  case class Props(ctl: RouterCtl[AppPage])
+  case class Props(proxy: ModelProxy[HomeModel], ctl: RouterCtl[AppPage])
+
+  class Backend($: BackendScope[Props, Unit]) {
+
+    private var groupNameRef: HTMLInputElement = _
+    private var groupsRef: Option[Reference] = None
+
+    def createGroup = Callback {
+      val groupName = groupNameRef.value
+      if (!groupName.isEmpty) {
+        Database.createGroup(groupName)
+        groupNameRef.value = ""
+      }
+    }
+
+    def render(p: Props): VdomElement = {
+      val proxy = p.proxy()
+      val ctl = p.ctl
+      val groups = proxy.groups
+      <.div(
+        <.div(^.className := "row",
+          <.form(^.action := "#",
+            <.div(^.className := "input-field",
+              SharedView.textInput.ref(groupNameRef = _)(^.id := "group-name"),
+              <.label(^.`for` := "group-name", "Group name")
+            ),
+            <.div(^.className := "btn", ^.onClick --> createGroup,
+              <.span("Create")
+            )
+          )
+        ),
+        <.div(^.className := "row",
+          groups match {
+            case Pending(startTime) => SharedView.circularLoading
+            case Empty => <.div()
+            case Ready(x) =>
+              <.div(
+                ^.className := "collection",
+                x.toTagMod(g => ctl.link(GroupPage(g.key))(^.className := "collection-item", g.name))
+              )
+            case _ => <.div()
+          }
+        )
+      )
+    }
+
+    def start = Callback {
+      Database.observeGroups(g => AppCircuit.dispatch(GroupsLoadedAction(g))) match {
+        case Some(ref) => groupsRef = Some(ref)
+        case None => AppCircuit.dispatch(GroupsFailedAction(new Exception("Failed loading groups")))
+      }
+    }
+
+    def stop = Callback {
+
+    }
+  }
 
   val component = ScalaComponent.builder[Props]("HomeView")
-    .render_P(p => <.div(
-      ^.className := "row",
-      <.div(
-        ^.className := "collection"
-      )
-    )).build
+    .stateless
+    .renderBackend[Backend]
+    .componentDidMount(_.backend.start)
+    .componentWillUnmount(_.backend.stop)
+    .build
 
-  def apply(ctl: RouterCtl[AppPage]) = component(Props(ctl))
+  def apply(proxy: ModelProxy[HomeModel], ctl: RouterCtl[AppPage]) = component(Props(proxy, ctl))
 }
