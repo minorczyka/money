@@ -16,3 +16,14 @@
     flex-direction: column;
     width: 400px;
 }
+
+.form-flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.form-flex-item {
+    flex-grow: 1;
+    padding-right: 10px;
+}

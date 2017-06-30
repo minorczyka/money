@@ -22,6 +22,7 @@ object OntapApp extends JSApp {
 
     val authModelConnection = AppCircuit.connect(_.authModel)
     val homeModelConnection = AppCircuit.connect(_.homeModel)
+    val groupModelConnection = AppCircuit.connect(_.groupModel)
 
     def checkAuthorization = {
       Database.isLogged
@@ -30,7 +31,7 @@ object OntapApp extends JSApp {
     val authorizedRoutes = (emptyRule
       | staticRoute(root, HomePage) ~> renderR(ctl => homeModelConnection(proxy => HomeView(proxy, ctl)))
       | dynamicRouteCT[GroupPage]("#group" ~ ("/" ~ string(".+")).caseClass[GroupPage]) ~>
-          dynRenderR((p, ctl) => GroupView())
+          dynRender(p => groupModelConnection(proxy => GroupView(p.key, proxy)))
       ).addCondition(CallbackTo[Boolean](checkAuthorization))(_ => Some(redirectToPage(SignInPage)(Redirect.Replace)))
 
     val unauthorizedRoutes = (emptyRule

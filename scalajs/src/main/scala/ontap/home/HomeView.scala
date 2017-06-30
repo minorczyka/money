@@ -6,7 +6,7 @@ import firebase.database.Reference
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
-import ontap.shared.SharedView
+import ontap.shared.{ModalView, SharedView}
 import ontap.{AppCircuit, AppPage, Database, GroupPage}
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -33,28 +33,35 @@ object HomeView {
       val groups = proxy.groups
       <.div(
         <.div(^.className := "row",
-          <.form(^.action := "#",
-            <.div(^.className := "input-field",
+          <.form(^.action := "#", ^.className := "form-flex",
+            <.div(^.className := "input-field form-flex-item",
               SharedView.textInput.ref(groupNameRef = _)(^.id := "group-name"),
               <.label(^.`for` := "group-name", "Group name")
             ),
-            <.div(^.className := "btn", ^.onClick --> createGroup,
-              <.span("Create")
+            <.div(^.className := "input-field",
+              <.div(^.className := "btn", ^.onClick --> createGroup,
+                <.span("Create")
+              )
             )
           )
         ),
         <.div(^.className := "row",
           groups match {
             case Pending(startTime) => SharedView.circularLoading
-            case Empty => <.div()
             case Ready(x) =>
-              <.div(
-                ^.className := "collection",
-                x.toTagMod(g => ctl.link(GroupPage(g.key))(^.className := "collection-item", g.name))
+              <.div(^.className := "collection",
+                x.toVdomArray(g => ctl.link(GroupPage(g.key))(^.key := g.key, ^.className := "collection-item", g.name))
               )
             case _ => <.div()
           }
-        )
+        ),
+        <.div(^.className := "row",
+          <.a(^.className := "waves-effect waves-light btn", ^.href := "#modal1", "Modal")
+        ),
+        ModalView("modal1", <.div(
+          <.h4("Header"),
+          <.p("Text")
+        ))
       )
     }
 
@@ -66,7 +73,7 @@ object HomeView {
     }
 
     def stop = Callback {
-
+      groupsRef.map(r => r.off())
     }
   }
 

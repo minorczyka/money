@@ -35,7 +35,8 @@ class AuthHandler[M](modelRW: ModelRW[M, AuthModel]) extends ActionHandler(model
     case SignInAction(email, password) =>
       val effect = Effect(Database.loginUser(email, password)
         .map(u => SignInSuccessAction)
-        .recover { case e => SignInErrorAction(e.getMessage) })
+        .recover { case e => SignInErrorAction(e.getMessage) }
+      )
       updated(value, effect)
     case SignInErrorAction(message) =>
       updated(value.copy(signInError = Some(message)))

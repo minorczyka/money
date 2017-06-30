@@ -2,6 +2,7 @@ package ontap
 
 import firebase.database.Reference
 import firebase.{Firebase, FirebaseConfig, User, UserInfo}
+import ontap.group.{GroupDetails, UserDetails}
 import ontap.home.Group
 
 import scala.concurrent.{Future, Promise}
@@ -39,14 +40,20 @@ object Database {
 
   def createUser(username: String, email: String, password: String): Future[Unit] = {
     val promise = Promise[Unit]()
+    var user: User = null
     auth.createUserWithEmailAndPassword(email, password)
-      .then(onResolve = u => {
-        val user = u.asInstanceOf[User]
+      .then(u => {
+        user = u.asInstanceOf[User]
         user.updateProfile(js.Dictionary("displayName" -> username))
-          .then(onResolve = _ => {
-            promise.success()
-          }, onReject = e => promise.failure(new Exception(e.message)))
-      }, onReject = e => promise.failure(new Exception(e.message)))
+      })
+      .then(_ => {
+        database.ref(s"user/${user.uid}/email").set(email)
+        database.ref(s"user/${user.uid}/username").set(username)
+      })
+      .then(_ => {
+        promise.success()
+    })
+      .`catch`(e => promise.failure(new Exception(e.message)))
     promise.future
   }
 
@@ -79,7 +86,8 @@ object Database {
     loggedUser() match {
       case Some(user) =>
         val groups = database.ref("groups")
-        val newGroup = groups.push(name)
+        val group = js.Dictionary("name" -> name, "members" -> js.Dictionary(user.uid -> user.displayName))
+        val newGroup = groups.push(group)
         database.ref(s"user/${user.uid}/groups/${newGroup.key}").set(name)
       case None => println("There is no user!")
     }
@@ -99,5 +107,46 @@ object Database {
         println("There is no user!")
         None
     }
+  }
+
+  def observeGroup(groupId: String, f: (GroupDetails => Unit)): Option[Reference] = {
+    loggedUser() match {
+      case Some(_) =>
+        val groupRef = database.ref(s"groups/$groupId")
+        groupRef.on("value", (snapshot, _) => {
+          val values = snapshot.`val`().asInstanceOf[js.Dictionary[Any]]
+          val name = values.getOrElse("name", "").asInstanceOf[String]
+          val members = values.getOrElse("members", js.Dictionary[String]()).asInstanceOf[js.Dictionary[String]].toMap
+          val group = GroupDetails(groupId, name, members)
+          f(group)
+        })
+        Some(groupRef)
+      case None =>
+        println("There is no user!")
+        None
+    }
+  }
+
+  def getUserId(email: String): Future[UserDetails] = {
+    val promise = Promise[UserDetails]()
+    database.ref("user").orderByChild("email").equalTo(email).once("value", (snapshot, _) => {
+      val obj = snapshot.`val`()
+      if (obj != null) {
+        val entry = obj.asInstanceOf[js.Dictionary[js.Dynamic]].toMap.head
+        val uid = entry._1
+        val user = entry._2
+        promise.success(UserDetails(uid, user.username.asInstanceOf[String], email))
+      } else {
+        promise.failure(new Exception("User not found"))
+      }
+    })
+    promise.future
+  }
+
+  def addUserToGroup(userDetails: UserDetails, groupDetails: GroupDetails): Future[Unit] = {
+    val promise = Promise[Unit]()
+    database.ref(s"groups/${groupDetails.key}/members/${userDetails.uid}").set(userDetails.username)
+    database.ref(s"user/${userDetails.uid}/groups/${groupDetails.key}").set(groupDetails.name)
+    promise.future
   }
 }
