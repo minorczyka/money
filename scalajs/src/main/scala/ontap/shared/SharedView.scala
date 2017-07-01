@@ -2,7 +2,7 @@ package ontap.shared
 
 import japgolly.scalajs.react.vdom.TagOf
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.html.{Div, Input}
+import org.scalajs.dom.html.{Div, Input, Select, TextArea}
 
 object SharedView {
 
@@ -24,7 +24,17 @@ object SharedView {
 
   val textInput: TagOf[Input] = <.input(^.`type` := "text")
 
+  val moneyInput: TagOf[Input] = <.input(^.`type` := "number", ^.min := "0.01", ^.step := "0.01")
+
   val passwordInput: TagOf[Input] = <.input(^.`type` := "password")
 
   val checkboxInput: TagOf[Input] = <.input(^.`type` := "checkbox")
+
+  val datePickerInput: TagOf[Input] = <.input(^.`type` := "date", ^.className := "datepicker")
+
+  val textAreaInput: TagOf[TextArea] = <.textarea(^.className := "materialize-textarea")
+
+  val selectInput: TagOf[Select] = <.select()
+
+  val multiSelectInput: TagOf[Select] = <.select(^.multiple := "true")
 }

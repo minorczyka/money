@@ -54,14 +54,7 @@ object HomeView {
               )
             case _ => <.div()
           }
-        ),
-        <.div(^.className := "row",
-          <.a(^.className := "waves-effect waves-light btn", ^.href := "#modal1", "Modal")
-        ),
-        ModalView("modal1", <.div(
-          <.h4("Header"),
-          <.p("Text")
-        ))
+        )
       )
     }
 

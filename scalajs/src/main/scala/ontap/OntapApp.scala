@@ -5,7 +5,7 @@ import japgolly.scalajs.react.extra.router.{BaseUrl, Redirect, Resolution, Route
 import japgolly.scalajs.react.vdom.TagOf
 import japgolly.scalajs.react.vdom.html_<^._
 import ontap.auth.{SignInView, SignUpView}
-import ontap.group.GroupView
+import ontap.group.{GroupView, PaymentView}
 import ontap.home.HomeView
 import ontap.shared.LayoutView
 import org.scalajs.dom
@@ -30,8 +30,10 @@ object OntapApp extends JSApp {
 
     val authorizedRoutes = (emptyRule
       | staticRoute(root, HomePage) ~> renderR(ctl => homeModelConnection(proxy => HomeView(proxy, ctl)))
-      | dynamicRouteCT[GroupPage]("#group" ~ ("/" ~ string(".+")).caseClass[GroupPage]) ~>
-          dynRender(p => groupModelConnection(proxy => GroupView(p.key, proxy)))
+      | dynamicRouteCT[GroupPage]("#group" ~ ("/" ~ string("[^\\/]+")).caseClass[GroupPage]) ~>
+          dynRenderR((p, ctl) => groupModelConnection(proxy => GroupView(p.key, proxy, ctl)))
+      | dynamicRouteCT[NewPaymentPage]("#payment" ~ ("/" ~ string("[^\\/]+")).caseClass[NewPaymentPage]) ~>
+          dynRenderR((p, ctl) => groupModelConnection(proxy => PaymentView(proxy, ctl)))
       ).addCondition(CallbackTo[Boolean](checkAuthorization))(_ => Some(redirectToPage(SignInPage)(Redirect.Replace)))
 
     val unauthorizedRoutes = (emptyRule

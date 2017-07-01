@@ -32,22 +32,20 @@ object MembersView {
           )
         ),
         <.div(
-          <.div(
-            <.form(^.action := "#", ^.className := "form-flex",
-              <.div(^.className := "input-field form-flex-item",
-                SharedView.textInput.ref(newMemberRef = _)(^.id := "group-name"),
-                <.label(^.`for` := "group-name", "Email")
-              ),
-              <.div(^.className := "input-field",
-                <.div(^.className := "btn", ^.onClick --> inviteNewMember,
-                  <.span("Invite")
-                )
-              )
+          <.form(^.action := "#", ^.className := "form-flex",
+            <.div(^.className := "input-field form-flex-item",
+              SharedView.textInput.ref(newMemberRef = _)(^.id := "group-name"),
+              <.label(^.`for` := "group-name", "Email")
             ),
-            newMemberError.whenDefined(e =>
-              <.div(^.className := "row",
-                <.p(e, ^.color := "red")
+            <.div(^.className := "input-field",
+              <.div(^.className := "btn", ^.onClick --> inviteNewMember,
+                <.span("Invite")
               )
+            )
+          ),
+          newMemberError.whenDefined(e =>
+            <.div(^.className := "row",
+              <.p(e, ^.color := "red")
             )
           )
         )

@@ -4,13 +4,14 @@ import diode.data.{Empty, Pending, Ready}
 import diode.react.ModelProxy
 import firebase.database.Reference
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
 import ontap.shared.SharedView
-import ontap.{AppCircuit, Database}
+import ontap.{AppCircuit, AppPage, Database}
 
 object GroupView {
 
-  case class Props(groupId: String, proxy: ModelProxy[GroupModel])
+  case class Props(groupKey: String, proxy: ModelProxy[GroupModel], ctl: RouterCtl[AppPage])
 
   class Backend($: BackendScope[Props, Unit]) {
 
@@ -26,10 +27,10 @@ object GroupView {
           case Pending(startTime) => SharedView.circularLoading
           case Ready(g) =>
             <.div(
-              <.div(^.className := "col l8 s12",
-                PaymentsView()
+              <.div(^.className := "col l7 s12",
+                PaymentsView(p.groupKey, g.payments, p.ctl)
               ),
-              <.div(^.className := "col l4 s12",
+              <.div(^.className := "col l5 s12",
                 MembersView(g.members, newMemberError)
               )
             )
@@ -39,7 +40,7 @@ object GroupView {
     }
 
     def start = Callback {
-      val groupId = $.props.runNow().groupId
+      val groupId = $.props.runNow().groupKey
       Database.observeGroup(groupId, g => AppCircuit.dispatch(GroupDetailsLoadedAction(g))) match {
         case Some(ref) => groupRef = Some(ref)
         case None => AppCircuit.dispatch(GroupDetailsFailedAction(new Exception("Failed loading group")))
@@ -58,6 +59,7 @@ object GroupView {
     .componentWillUnmount(_.backend.stop)
     .build
 
-  def apply(groupId: String, proxy: ModelProxy[GroupModel]) = component(Props(groupId, proxy))
+  def apply(groupId: String, proxy: ModelProxy[GroupModel], ctl: RouterCtl[AppPage]) =
+    component(Props(groupId, proxy, ctl))
 
 }

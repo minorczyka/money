@@ -2,11 +2,12 @@ package ontap
 
 import firebase.database.Reference
 import firebase.{Firebase, FirebaseConfig, User, UserInfo}
-import ontap.group.{GroupDetails, UserDetails}
+import ontap.group.{GroupDetails, PaymentDetails, UserDetails}
 import ontap.home.Group
 
 import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.ScalaJSDefined
 
 object Database {
@@ -82,7 +83,7 @@ object Database {
 
   private val database = Firebase.database(app)
 
-  def createGroup(name: String) = {
+  def createGroup(name: String): Unit = {
     loggedUser() match {
       case Some(user) =>
         val groups = database.ref("groups")
@@ -109,6 +110,19 @@ object Database {
     }
   }
 
+  private def parsePayment(dict: js.Dictionary[Any]): PaymentDetails = {
+    val name = dict.getOrElse("name", "").asInstanceOf[String]
+    val description = dict.getOrElse("description", "").asInstanceOf[String]
+    val date = dict.getOrElse("date", "").asInstanceOf[String]
+    val cost = dict.getOrElse("cost", "0").asInstanceOf[String].toInt
+    val payer = dict.getOrElse("payer", "").asInstanceOf[String]
+    val people = dict.get("people") match {
+      case Some(p) => p.asInstanceOf[js.Dictionary[String]].keys.toSeq
+      case None => Seq()
+    }
+    PaymentDetails(name, description, date, cost, payer, people)
+  }
+
   def observeGroup(groupId: String, f: (GroupDetails => Unit)): Option[Reference] = {
     loggedUser() match {
       case Some(_) =>
@@ -117,7 +131,14 @@ object Database {
           val values = snapshot.`val`().asInstanceOf[js.Dictionary[Any]]
           val name = values.getOrElse("name", "").asInstanceOf[String]
           val members = values.getOrElse("members", js.Dictionary[String]()).asInstanceOf[js.Dictionary[String]].toMap
-          val group = GroupDetails(groupId, name, members)
+          val payments: Map[String, PaymentDetails] = values.get("payments") match {
+            case Some(p) =>
+              p.asInstanceOf[js.Dictionary[js.Dictionary[Any]]]
+                .map(x => (x._1, parsePayment(x._2)))
+                .toMap
+            case None => Map()
+          }
+          val group = GroupDetails(groupId, name, members, payments)
           f(group)
         })
         Some(groupRef)
@@ -148,5 +169,18 @@ object Database {
     database.ref(s"groups/${groupDetails.key}/members/${userDetails.uid}").set(userDetails.username)
     database.ref(s"user/${userDetails.uid}/groups/${groupDetails.key}").set(groupDetails.name)
     promise.future
+  }
+
+  def createPayment(groupKey: String, paymentDetails: PaymentDetails): Unit = {
+    val paymentsRef = database.ref(s"groups/${groupKey}/payments")
+    val payment = js.Dictionary(
+      "name" -> paymentDetails.name,
+      "description" -> paymentDetails.description,
+      "date" -> paymentDetails.date,
+      "cost" -> paymentDetails.cost.toString,
+      "payer" -> paymentDetails.payer,
+      "people" -> paymentDetails.people.map(x => (x, "true")).toMap.toJSDictionary
+    )
+    paymentsRef.push(payment)
   }
 }
