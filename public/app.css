@@ -1,0 +1,29 @@
+.parent-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+}
+
+.auth-box {
+    display: inline-block;
+    padding: 32px 48px 0px 48px;
+    border: 1px solid #EEE;
+}
+
+.auth-box-container {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+}
+
+.form-flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.form-flex-item {
+    flex-grow: 1;
+    padding-right: 10px;
+}
