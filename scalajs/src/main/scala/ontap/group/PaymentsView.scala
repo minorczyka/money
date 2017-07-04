@@ -13,7 +13,7 @@ object PaymentsView {
     def render(p: Props): VdomElement = {
       val ctl = p.ctl
       val groupKey = p.groupDetails.key
-      val payments = p.groupDetails.payments
+      val payments = p.groupDetails.payments.toSeq.sortBy(_._2.date)
       val members = p.groupDetails.members
       <.div(
         <.h4("Payments",
@@ -23,7 +23,7 @@ object PaymentsView {
           <.div
         } else {
           <.ul(^.className := "collection",
-            payments.toVdomArray(x => PaymentItemView(x._1, x._2, members))
+            payments.toVdomArray(x => PaymentItemView(groupKey, x._2, members, ctl))
           )
         }
       )

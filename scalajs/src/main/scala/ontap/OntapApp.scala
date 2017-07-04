@@ -33,7 +33,9 @@ object OntapApp extends JSApp {
       | dynamicRouteCT[GroupPage]("#group" ~ ("/" ~ string("[^\\/]+")).caseClass[GroupPage]) ~>
           dynRenderR((p, ctl) => groupModelConnection(proxy => GroupView(p.key, proxy, ctl)))
       | dynamicRouteCT[NewPaymentPage]("#payment" ~ ("/" ~ string("[^\\/]+")).caseClass[NewPaymentPage]) ~>
-          dynRenderR((p, ctl) => groupModelConnection(proxy => PaymentView(proxy, ctl)))
+          dynRenderR((p, ctl) => groupModelConnection(proxy => PaymentView(proxy, None, ctl)))
+      | dynamicRouteCT[EditPaymentPage]("#payment" ~ ("/" ~ string("[^\\/]+") / string("[^\\/]+")).caseClass[EditPaymentPage]) ~>
+      dynRenderR((p, ctl) => groupModelConnection(proxy => PaymentView(proxy, Some(p.paymentKey), ctl)))
       ).addCondition(CallbackTo[Boolean](checkAuthorization))(_ => Some(redirectToPage(SignInPage)(Redirect.Replace)))
 
     val unauthorizedRoutes = (emptyRule

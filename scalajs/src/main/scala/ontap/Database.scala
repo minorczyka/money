@@ -110,7 +110,7 @@ object Database {
     }
   }
 
-  private def parsePayment(dict: js.Dictionary[Any]): PaymentDetails = {
+  private def parsePayment(key: String, dict: js.Dictionary[Any]): PaymentDetails = {
     val name = dict.getOrElse("name", "").asInstanceOf[String]
     val description = dict.getOrElse("description", "").asInstanceOf[String]
     val date = dict.getOrElse("date", "").asInstanceOf[String]
@@ -120,7 +120,7 @@ object Database {
       case Some(p) => p.asInstanceOf[js.Dictionary[String]].keys.toSeq
       case None => Seq()
     }
-    PaymentDetails(name, description, date, cost, payer, people)
+    PaymentDetails(key, name, description, date, cost, payer, people)
   }
 
   def observeGroup(groupId: String, f: (GroupDetails => Unit)): Option[Reference] = {
@@ -134,7 +134,7 @@ object Database {
           val payments: Map[String, PaymentDetails] = values.get("payments") match {
             case Some(p) =>
               p.asInstanceOf[js.Dictionary[js.Dictionary[Any]]]
-                .map(x => (x._1, parsePayment(x._2)))
+                .map(x => (x._1, parsePayment(x._1, x._2)))
                 .toMap
             case None => Map()
           }
@@ -173,7 +173,7 @@ object Database {
 
   def createPayment(groupKey: String, paymentDetails: PaymentDetails): Unit = {
     val paymentsRef = database.ref(s"groups/${groupKey}/payments")
-    val payment = js.Dictionary(
+    val payment = js.Dynamic.literal(
       "name" -> paymentDetails.name,
       "description" -> paymentDetails.description,
       "date" -> paymentDetails.date,
@@ -182,5 +182,17 @@ object Database {
       "people" -> paymentDetails.people.map(x => (x, "true")).toMap.toJSDictionary
     )
     paymentsRef.push(payment)
+  }
+
+  def updatePayment(groupKey: String, paymentDetails: PaymentDetails): Unit = {
+    val paymentRef = database.ref(s"groups/$groupKey/payments/${paymentDetails.key}")
+    paymentRef.set(js.Dynamic.literal(
+      "name" -> paymentDetails.name,
+      "description" -> paymentDetails.description,
+      "date" -> paymentDetails.date,
+      "cost" -> paymentDetails.cost.toString,
+      "payer" -> paymentDetails.payer,
+      "people" -> paymentDetails.people.map(x => (x, "true")).toMap.toJSDictionary
+    ))
   }
 }

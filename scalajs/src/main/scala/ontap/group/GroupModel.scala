@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class GroupDetails(key: String, name: String, members: Map[String, String], payments: Map[String, PaymentDetails])
 case class UserDetails(uid: String, username: String, email: String)
-case class PaymentDetails(name: String, description: String, date: String, cost: Int, payer: String, people: Seq[String])
+case class PaymentDetails(key: String, name: String, description: String, date: String, cost: Int, payer: String, people: Seq[String])
 case class GroupMember(key: String, username: String, balance: Int)
 
 case class GroupModel(group: Pot[GroupDetails], newMemberError: Option[String])

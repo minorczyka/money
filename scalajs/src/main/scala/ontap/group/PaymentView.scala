@@ -5,15 +5,16 @@ import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
-import ontap.{AppPage, Database, GroupPage}
 import ontap.shared.SharedView._
+import ontap.{AppPage, Database, GroupPage}
 import org.scalajs.dom.raw.{HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement}
 
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters._
 
 object PaymentView {
 
-  case class Props(proxy: ModelProxy[GroupModel], ctl: RouterCtl[AppPage])
+  case class Props(proxy: ModelProxy[GroupModel], paymentKey: Option[String], ctl: RouterCtl[AppPage])
 
   case class State(errorMessage: Option[String])
 
@@ -26,9 +27,18 @@ object PaymentView {
     private var descriptionRef: HTMLTextAreaElement = _
 
     def render(p: Props, s: State): VdomElement = {
-      //      val dataValue = VdomAttr("data-value")
       val ctl = p.ctl
       val proxy = p.proxy()
+
+      val payment = (for(a <- proxy.group.toOption; b <- p.paymentKey) yield (a, b)).flatMap(p =>
+        p._1.payments.get(p._2)
+      )
+      val name = payment.map(_.name).getOrElse("")
+      val date = payment.map(_.date).getOrElse("")
+      val cost = payment.map(x => (x.cost / 100.0).toString).getOrElse("")
+      val payer = payment.map(_.payer).getOrElse("")
+      val people = payment.map(_.people).getOrElse(Seq())
+      val description = payment.map(_.description).getOrElse("")
 
       def submit = {
         val name = nameRef.value
@@ -50,7 +60,10 @@ object PaymentView {
           proxy.group match {
             case Ready(g) =>
               val intCost = (cost.toDouble * 100).round.toInt
-              Database.createPayment(g.key, PaymentDetails(name, description, date, intCost, payer, people))
+              payment match {
+                case Some(p) => Database.updatePayment(g.key, PaymentDetails(p.key, name, description, date, intCost, payer, people))
+                case None => Database.createPayment(g.key, PaymentDetails("", name, description, date, intCost, payer, people))
+              }
               ctl.set(GroupPage(g.key)).runNow()
             case _ => println("There is no active group!")
           }
@@ -70,27 +83,27 @@ object PaymentView {
         <.h4(^.className := "col s12", "Add new payment"),
         <.form(^.className := "col s12", ^.onSubmit --> submit,
           <.div(^.className := "input-field",
-            textInput.ref(nameRef = _)(^.required := true),
+            textInput.ref(nameRef = _)(^.required := true, ^.defaultValue := name),
             <.label("Name")
           ),
           <.div(^.className := "input-field",
-            datePickerInput.ref(dateRef = _),
+            datePickerInput.ref(dateRef = _)(VdomAttr("data-value") := date),
             <.label("Date")
           ),
           <.div(^.className := "input-field",
-            moneyInput.ref(costRef = _)(^.required := true),
+            moneyInput.ref(costRef = _)(^.required := true, ^.defaultValue := cost),
             <.label("Cost")
           ),
           <.div(^.className := "input-field",
-            selectInput.ref(payerRef = _)(^.defaultValue := "", options),
+            selectInput.ref(payerRef = _)(^.defaultValue := "", ^.defaultValue := payer, options),
             <.label("Payer")
           ),
           <.div(^.className := "input-field",
-            multiSelectInput.ref(peopleRef = _)(options),
+            multiSelectInput.ref(peopleRef = _)(^.defaultValue := people.toJSArray, options),
             <.label("People")
           ),
           <.div(^.className := "input-field",
-            textAreaInput.ref(descriptionRef = _),
+            textAreaInput.ref(descriptionRef = _)(^.defaultValue := description),
             <.label("Description")
           ),
           s.errorMessage.whenDefined(e =>
@@ -108,10 +121,12 @@ object PaymentView {
       val jQuery = js.Dynamic.global.jQuery
       jQuery(".datepicker").pickadate(js.Dynamic.literal(
         format = "dd-mm-yyyy",
-//        formatSubmit = "yyyy/mm/dd",
         firstDay = 1
       ))
       jQuery("select").material_select()
+
+      val materialize = js.Dynamic.global.Materialize
+      materialize.updateTextFields()
     }
   }
 
@@ -121,6 +136,6 @@ object PaymentView {
     .componentDidMount(_.backend.start)
     .build
 
-  def apply(proxy: ModelProxy[GroupModel], ctl: RouterCtl[AppPage]) =
-    component(Props(proxy, ctl))
+  def apply(proxy: ModelProxy[GroupModel], paymentKey: Option[String], ctl: RouterCtl[AppPage]) =
+    component(Props(proxy, paymentKey, ctl))
 }

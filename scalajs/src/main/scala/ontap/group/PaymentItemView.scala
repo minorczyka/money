@@ -1,11 +1,13 @@
 package ontap.group
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
+import ontap.{AppPage, EditPaymentPage}
 
 object PaymentItemView {
 
-  case class Props(key: String, paymentDetails: PaymentDetails, members: Map[String, String])
+  case class Props(groupKey: String, paymentDetails: PaymentDetails, members: Map[String, String], ctl: RouterCtl[AppPage])
 
   class Backend($: BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement = {
@@ -17,15 +19,21 @@ object PaymentItemView {
       }
       val members = p.members
       val payerName = members.getOrElse(p.paymentDetails.payer, "")
-      val cost = (p.paymentDetails.cost.toDouble / 100)
-//      <.li(^.className := "collection-item",
-      <.a(^.className := "collection-item", ^.href := "#",
+      val cost = p.paymentDetails.cost / 100.0
+      p.ctl.link(EditPaymentPage(p.groupKey, p.paymentDetails.key))(^.className := "collection-item",
         <.b(name),
         date,
         <.span(^.className := "right", s"${cost} zł"),
         <.br,
         payerName
       )
+//      <.a(^.className := "collection-item", ^.href := "#",
+//        <.b(name),
+//        date,
+//        <.span(^.className := "right", s"${cost} zł"),
+//        <.br,
+//        payerName
+//      )
     }
   }
 
@@ -34,6 +42,6 @@ object PaymentItemView {
     .renderBackend[Backend]
     .build
 
-  def apply(key: String, paymentDetails: PaymentDetails, members: Map[String, String]) =
-    component.withKey(key)(Props(key, paymentDetails, members))
+  def apply(groupKey: String, paymentDetails: PaymentDetails, members: Map[String, String], ctl: RouterCtl[AppPage]) =
+    component.withKey(paymentDetails.key)(Props(groupKey, paymentDetails, members, ctl))
 }
