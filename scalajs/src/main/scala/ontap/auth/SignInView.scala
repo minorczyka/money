@@ -27,36 +27,42 @@ object SignInView {
       val ctl = p.ctl
       val error = p.proxy().signInError
       <.div(^.className := "section",
-        <.div(^.className := "container auth-box-container",
-          <.h3("Sign in"),
-          <.div(^.className := "auth-box z-depth-1 grey lighten-4 row",
-            <.form(^.className := "col s12",
-              <.div(^.className := "row",
-                <.div(^.className := "input-field col s12",
-                  textInput.ref(emailRef = _),
-                  <.label("Email")
+        <.div(^.className := "center",
+          <.div(^.className := "row",
+            <.div(^.className := "col m6 offset-m3 s12",
+              <.h3(^.className := "", "Sign in"),
+              <.div(^.className := "card-panel",
+                <.form(^.className := "container",
+                  <.div(^.className := "row",
+                    <.div(^.className := "input-field col s12",
+                      textInput.ref(emailRef = _),
+                      <.label("Email")
+                    )
+                  ),
+                  <.div(^.className := "row",
+                    <.div(^.className := "input-field col s12",
+                      passwordInput.ref(passwordRef = _),
+                      <.label("Password")
+                    )
+                  ),
+                  error.whenDefined(e =>
+                    <.div(^.className := "row",
+                      <.p(e, ^.color := "red")
+                    )
+                  ),
+                  <.div(^.className := "section"),
+                  <.div(^.className := "row",
+                    <.button(^.className := "col s12 btn btn-large waves-effect",
+                      ^.onClick --> onClick,
+                      "Login")
+                  )
                 )
               ),
-              <.div(^.className := "row",
-                <.div(^.className := "input-field col s12",
-                  passwordInput.ref(passwordRef = _),
-                  <.label("Password")
-                )
-              ),
-              error.whenDefined(e =>
-                <.div(^.className := "row",
-                  <.p(e, ^.color := "red")
-                )
-              ),
-              <.div(^.className := "section"),
-              <.div(^.className := "row",
-                <.button(^.className := "col s12 btn btn-large waves-effect indigo",
-                  ^.onClick --> onClick,
-                  "Login")
+              ctl.link(SignUpPage)(^.className := "center",
+                <.p("Create new account")
               )
             )
-          ),
-          ctl.link(SignUpPage)("Create new account", ^.textAlign := "center")
+          )
         )
       )
     }

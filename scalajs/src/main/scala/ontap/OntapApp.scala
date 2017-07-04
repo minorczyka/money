@@ -40,7 +40,7 @@ object OntapApp extends JSApp {
 
     val unauthorizedRoutes = (emptyRule
       | staticRoute("#signIn", SignInPage) ~> renderR(ctl => authModelConnection(proxy => SignInView(ctl, proxy)))
-      | staticRoute("#signUp", SignUpPage) ~> renderR(ctl => authModelConnection(proxy => SignUpView(ctl, proxy)))
+      | staticRoute("#signUp", SignUpPage) ~> render(authModelConnection(proxy => SignUpView(proxy)))
     ).addCondition(CallbackTo[Boolean](!checkAuthorization))(_ => Some(redirectToPage(HomePage)(Redirect.Replace)))
 
     (emptyRule

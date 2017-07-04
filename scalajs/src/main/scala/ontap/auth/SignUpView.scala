@@ -10,7 +10,7 @@ import org.scalajs.dom.raw.HTMLInputElement
 
 object SignUpView {
 
-  case class Props(ctl: RouterCtl[AppPage], proxy: ModelProxy[AuthModel])
+  case class Props(proxy: ModelProxy[AuthModel])
 
   class Backend($: BackendScope[Props, Unit]) {
 
@@ -34,46 +34,49 @@ object SignUpView {
     }
 
     def render(p: Props): VdomElement = {
-      val ctl = p.ctl
       val error = p.proxy().signUpError
       <.div(^.className := "section",
-        <.div(^.className := "container auth-box-container",
-          <.h3("Sign up"),
-          <.div(^.className := "auth-box z-depth-1 grey lighten-4 row",
-            <.form(^.className := "col s12",
-              <.div(^.className := "row",
-                <.div(^.className := "input-field col s12",
-                  textInput.ref(emailRef = _),
-                  <.label("Email")
+        <.div(^.className := "center",
+          <.div(^.className := "row",
+            <.div(^.className := "col m6 offset-m3 s12",
+              <.h3(^.className := "", "Sign up"),
+              <.div(^.className := "card-panel",
+                <.form(^.className := "container",
+                  <.div(^.className := "row",
+                    <.div(^.className := "input-field col s12",
+                      textInput.ref(emailRef = _),
+                      <.label("Email")
+                    )
+                  ),
+                  <.div(^.className := "row",
+                    <.div(^.className := "input-field col s12",
+                      textInput.ref(usernameRef = _),
+                      <.label("Username")
+                    )
+                  ),
+                  <.div(^.className := "row",
+                    <.div(^.className := "input-field col s12",
+                      passwordInput.ref(password1Ref = _),
+                      <.label("Password")
+                    )
+                  ),
+                  <.div(^.className := "row",
+                    <.div(^.className := "input-field col s12",
+                      passwordInput.ref(password2Ref = _),
+                      <.label("Repeat password")
+                    )
+                  ),
+                  error.whenDefined(e =>
+                    <.div(^.className := "row",
+                      <.p(e, ^.color := "red")
+                    )
+                  ),
+                  <.div(^.className := "row",
+                    <.button(^.className := "col s12 btn btn-large waves-effect",
+                      ^.onClick --> onClick,
+                      "Register")
+                  )
                 )
-              ),
-              <.div(^.className := "row",
-                <.div(^.className := "input-field col s12",
-                  textInput.ref(usernameRef = _),
-                  <.label("Username")
-                )
-              ),
-              <.div(^.className := "row",
-                <.div(^.className := "input-field col s12",
-                  passwordInput.ref(password1Ref = _),
-                  <.label("Password")
-                )
-              ),
-              <.div(^.className := "row",
-                <.div(^.className := "input-field col s12",
-                  passwordInput.ref(password2Ref = _),
-                  <.label("Repeat password")
-                )
-              ),
-              error.whenDefined(e =>
-                <.div(^.className := "row",
-                  <.p(e, ^.color := "red")
-                )
-              ),
-              <.div(^.className := "row",
-                <.button(^.className := "col s12 btn btn-large waves-effect indigo",
-                  ^.onClick --> onClick,
-                  "Register")
               )
             )
           )
@@ -87,6 +90,6 @@ object SignUpView {
     .renderBackend[Backend]
     .build
 
-  def apply(ctl: RouterCtl[AppPage], proxy: ModelProxy[AuthModel]) =
-    component(Props(ctl, proxy))
+  def apply(proxy: ModelProxy[AuthModel]) =
+    component(Props(proxy))
 }

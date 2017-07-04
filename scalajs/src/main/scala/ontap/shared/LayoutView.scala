@@ -24,9 +24,9 @@ object LayoutView {
         ^.role := "navigation",
         <.div(
           ^.className := "nav-wrapper container",
-          ctl.link(HomePage)("Money", ^.className := "brand-logo"),
+          ctl.link(HomePage)("Money", ^.className := "brand-logo left"),
           username.whenDefined(username =>
-            <.ul(^.id := "nav-mobile", ^.className := "right hide-on-med-and-down",
+            <.ul(^.id := "nav-mobile", ^.className := "right",
               <.li(username),
               <.li(
                 <.a(^.onClick --> logout,
