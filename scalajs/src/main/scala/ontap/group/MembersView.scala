@@ -55,7 +55,7 @@ object MembersView {
         <.div(
           <.form(^.action := "#", ^.className := "form-flex",
             <.div(^.className := "input-field form-flex-item",
-              SharedView.textInput.ref(newMemberRef = _)(^.id := "group-name"),
+              SharedView.emailInput.ref(newMemberRef = _)(^.id := "group-name"),
               <.label(^.`for` := "group-name", "Email")
             ),
             <.div(^.className := "input-field",
