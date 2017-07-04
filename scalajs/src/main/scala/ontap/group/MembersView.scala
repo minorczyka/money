@@ -10,7 +10,22 @@ object MembersView {
 
   private var newMemberRef: HTMLInputElement = _
 
-  case class Props(members: Map[String, String], newMemberError: Option[String])
+  case class Props(groupDetails: GroupDetails, newMemberError: Option[String])
+
+  def costDivision(paymentDetails: PaymentDetails): Int = {
+    (paymentDetails.cost.toDouble / paymentDetails.people.size).ceil.toInt
+  }
+
+  def membersWithBalance(groupDetails: GroupDetails): Seq[GroupMember] = {
+    val payments = groupDetails.payments.values
+    val plus = payments.groupBy(_.payer).mapValues(_.map(p => costDivision(p) * p.people.size).sum)
+    val minus = payments.flatMap(p => p.people.map(x => (x, costDivision(p))))
+      .groupBy(_._1)
+      .mapValues(_.map(_._2).sum)
+    groupDetails.members.map(m =>
+      GroupMember(m._1, m._2, plus.getOrElse(m._1, 0) - minus.getOrElse(m._1, 0))
+    ).toSeq
+  }
 
   class Backend($: BackendScope[Props, Unit]) {
 
@@ -22,13 +37,19 @@ object MembersView {
     }
 
     def render(p: Props): VdomElement = {
-      val members = p.members
+      val members = membersWithBalance(p.groupDetails)
       val newMemberError = p.newMemberError
+      membersWithBalance(p.groupDetails)
       <.div(
         <.h4("Members"),
         <.ul(^.className := "collection",
           members.toVdomArray(x =>
-            <.li(^.key := x._1, ^.className := "collection-item", x._2)
+            <.li(^.key := x.key, ^.className := "collection-item",
+              x.username,
+              <.span(^.classSet("right" -> true, "green-text" -> (x.balance >= 0), "red-text" -> (x.balance < 0)),
+                s"${x.balance / 100.0} zł"
+              )
+            )
           )
         ),
         <.div(
@@ -58,5 +79,6 @@ object MembersView {
     .renderBackend[Backend]
     .build
 
-  def apply(members: Map[String, String], newMemberError: Option[String]) = component(Props(members, newMemberError))
+  def apply(groupDetails: GroupDetails, newMemberError: Option[String]) =
+    component(Props(groupDetails, newMemberError))
 }

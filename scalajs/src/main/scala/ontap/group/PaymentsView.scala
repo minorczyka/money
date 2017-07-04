@@ -7,20 +7,23 @@ import ontap.{AppPage, NewPaymentPage}
 
 object PaymentsView {
 
-  case class Props(groupKey: String, members: Map[String, String], payments: Map[String, PaymentDetails], ctl: RouterCtl[AppPage])
+  case class Props(groupDetails: GroupDetails, ctl: RouterCtl[AppPage])
 
   class Backend($: BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement = {
       val ctl = p.ctl
+      val groupKey = p.groupDetails.key
+      val payments = p.groupDetails.payments
+      val members = p.groupDetails.members
       <.div(
         <.h4("Payments",
-          ctl.link(NewPaymentPage(p.groupKey))(^.className := "right waves-effect waves-light btn", "New payment")
+          ctl.link(NewPaymentPage(groupKey))(^.className := "right waves-effect waves-light btn", "New payment")
         ),
-        if (p.payments.isEmpty) {
+        if (payments.isEmpty) {
           <.div
         } else {
           <.ul(^.className := "collection",
-            p.payments.toVdomArray(x => PaymentItemView(x._1, x._2, p.members))
+            payments.toVdomArray(x => PaymentItemView(x._1, x._2, members))
           )
         }
       )
@@ -32,6 +35,6 @@ object PaymentsView {
     .renderBackend[Backend]
     .build
 
-  def apply(groupKey: String, members: Map[String, String], payments: Map[String, PaymentDetails], ctl: RouterCtl[AppPage]) =
-    component(Props(groupKey, members, payments, ctl))
+  def apply(groupDetails: GroupDetails, ctl: RouterCtl[AppPage]) =
+    component(Props(groupDetails, ctl))
 }

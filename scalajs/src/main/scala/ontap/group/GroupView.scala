@@ -28,10 +28,10 @@ object GroupView {
           case Ready(g) =>
             <.div(
               <.div(^.className := "col l7 s12",
-                PaymentsView(p.groupKey, g.members, g.payments, p.ctl)
+                PaymentsView(g, p.ctl)
               ),
               <.div(^.className := "col l5 s12",
-                MembersView(g.members, newMemberError)
+                MembersView(g, newMemberError)
               )
             )
           case _ => <.div()

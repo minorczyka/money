@@ -24,7 +24,7 @@ object SharedView {
 
   val textInput: TagOf[Input] = <.input(^.`type` := "text")
 
-  val moneyInput: TagOf[Input] = <.input(^.`type` := "number", ^.min := "0.01", ^.step := "0.01")
+  val moneyInput: TagOf[Input] = <.input(^.`type` := "number", ^.min := "0.01", ^.max := "1000", ^.step := "0.01")
 
   val passwordInput: TagOf[Input] = <.input(^.`type` := "password")
 
