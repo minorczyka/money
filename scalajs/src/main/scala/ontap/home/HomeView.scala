@@ -19,12 +19,13 @@ object HomeView {
     private var groupNameRef: HTMLInputElement = _
     private var groupsRef: Option[Reference] = None
 
-    def createGroup = Callback {
+    def submit(e: ReactEvent) = e.preventDefaultCB >> CallbackTo[Boolean] {
       val groupName = groupNameRef.value
       if (!groupName.isEmpty) {
         Database.createGroup(groupName)
         groupNameRef.value = ""
       }
+      false
     }
 
     def render(p: Props): VdomElement = {
@@ -34,15 +35,13 @@ object HomeView {
       <.div(
         <.div(^.className := "row",
           <.div(^.className := "col s12",
-            <.form(^.action := "#", ^.className := "form-flex",
+            <.form(^.className := "form-flex", ^.onSubmit ==> submit,
               <.div(^.className := "input-field form-flex-item",
                 SharedView.textInput.ref(groupNameRef = _)(^.id := "group-name"),
                 <.label(^.`for` := "group-name", "Group name")
               ),
               <.div(^.className := "input-field",
-                <.div(^.className := "btn", ^.onClick --> createGroup,
-                  <.span("Create")
-                )
+                <.button(^.className := "btn", ^.`type` := "submit", "Create")
               )
             ),
             groups match {
@@ -50,7 +49,8 @@ object HomeView {
               case Empty => <.div()
               case Ready(x) =>
                 <.div(^.className := "collection",
-                  x.toVdomArray(g => ctl.link(GroupPage(g.key))(^.key := g.key, ^.className := "collection-item", g.name))
+                  x.sortBy(_.name)
+                    .toVdomArray(g => ctl.link(GroupPage(g.key))(^.key := g.key, ^.className := "collection-item", g.name))
                 )
               case _ => <.div()
             }

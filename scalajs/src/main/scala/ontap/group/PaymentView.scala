@@ -40,7 +40,7 @@ object PaymentView {
       val people = payment.map(_.people).getOrElse(Seq())
       val description = payment.map(_.description).getOrElse("")
 
-      def submit = {
+      def submit(e: ReactEvent) = e.preventDefaultCB >> CallbackTo[Boolean] {
         val name = nameRef.value
         val date = dateRef.value
         val cost = costRef.value
@@ -51,11 +51,11 @@ object PaymentView {
           .toSeq
         val description = descriptionRef.value
         if (date.isEmpty) {
-          $.setState(State(Some("Date is required!")))
+          $.setState(State(Some("Date is required!"))).runNow()
         } else if (payer.isEmpty) {
-          $.setState(State(Some("Payer is not selected!")))
+          $.setState(State(Some("Payer is not selected!"))).runNow()
         } else if (people.isEmpty) {
-          $.setState(State(Some("People are not selected!")))
+          $.setState(State(Some("People are not selected!"))).runNow()
         } else {
           proxy.group match {
             case Ready(g) =>
@@ -67,8 +67,9 @@ object PaymentView {
               ctl.set(GroupPage(g.key)).runNow()
             case _ => println("There is no active group!")
           }
-          $.setState(State(None))
+          $.setState(State(None)).runNow()
         }
+        false
       }
 
       val defaultOption = <.option(^.value := "", ^.disabled := true, "Choose")
@@ -81,7 +82,7 @@ object PaymentView {
 
       <.div(^.className := "row",
         <.h4(^.className := "col s12", "Add new payment"),
-        <.form(^.className := "col s12", ^.onSubmit --> submit,
+        <.form(^.className := "col s12", ^.onSubmit ==> submit,
           <.div(^.className := "input-field",
             textInput.ref(nameRef = _)(^.required := true, ^.defaultValue := name),
             <.label("Name")

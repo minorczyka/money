@@ -29,11 +29,12 @@ object MembersView {
 
   class Backend($: BackendScope[Props, Unit]) {
 
-    def inviteNewMember = Callback {
+    def submit(e: ReactEvent) = e.preventDefaultCB >> CallbackTo[Boolean] {
       val email = newMemberRef.value
       if (!email.isEmpty) {
         AppCircuit.dispatch(AddNewMemberAction(email))
       }
+      false
     }
 
     def render(p: Props): VdomElement = {
@@ -53,15 +54,13 @@ object MembersView {
           )
         ),
         <.div(
-          <.form(^.action := "#", ^.className := "form-flex",
+          <.form(^.className := "form-flex", ^.onSubmit ==> submit,
             <.div(^.className := "input-field form-flex-item",
               SharedView.emailInput.ref(newMemberRef = _)(^.id := "group-name"),
               <.label(^.`for` := "group-name", "Email")
             ),
             <.div(^.className := "input-field",
-              <.div(^.className := "btn", ^.onClick --> inviteNewMember,
-                <.span("Invite")
-              )
+              <.button(^.className := "btn", ^.`type` := "submit", "Invite")
             )
           ),
           newMemberError.whenDefined(e =>

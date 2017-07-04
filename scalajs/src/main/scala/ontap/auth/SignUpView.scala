@@ -19,7 +19,7 @@ object SignUpView {
     private var password1Ref: HTMLInputElement = _
     private var password2Ref: HTMLInputElement = _
 
-    def onClick = Callback {
+    def submit(e: ReactEvent) = e.preventDefaultCB >> CallbackTo[Boolean] {
       val email = emailRef.value
       val username = usernameRef.value
       val password1 = password1Ref.value
@@ -31,6 +31,7 @@ object SignUpView {
       } else {
         AppCircuit.dispatch(SignUpAction(username, email, password1))
       }
+      false
     }
 
     def render(p: Props): VdomElement = {
@@ -41,7 +42,7 @@ object SignUpView {
             <.div(^.className := "col m6 offset-m3 s12",
               <.h3(^.className := "", "Sign up"),
               <.div(^.className := "card-panel",
-                <.form(^.className := "container",
+                <.form(^.className := "container", ^.onSubmit ==> submit,
                   <.div(^.className := "row",
                     <.div(^.className := "input-field col s12",
                       emailInput.ref(emailRef = _),
@@ -72,9 +73,7 @@ object SignUpView {
                     )
                   ),
                   <.div(^.className := "row",
-                    <.button(^.className := "col s12 btn btn-large waves-effect",
-                      ^.onClick --> onClick,
-                      "Register")
+                    <.button(^.className := "col s12 btn btn-large waves-effect", ^.`type` := "submit", "Register")
                   )
                 )
               )
