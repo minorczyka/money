@@ -2,6 +2,7 @@ package ontap.home
 
 import diode.data.Pot
 import diode.{Action, ActionHandler, ModelRW}
+import ontap.auth.LogOutAction
 
 case class Group(key: String, name: String)
 
@@ -20,5 +21,7 @@ class HomeHandler[M](modelRW: ModelRW[M, HomeModel]) extends ActionHandler(model
       updated(value.copy(groups = value.groups.ready(groups)))
     case GroupsFailedAction(error) =>
       updated(value.copy(groups = value.groups.fail(error)))
+    case LogOutAction =>
+      updated(value.copy(groups = Pot.empty))
   }
 }

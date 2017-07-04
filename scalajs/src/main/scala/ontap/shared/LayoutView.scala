@@ -20,7 +20,7 @@ object LayoutView {
       val ctl = p.ctl
       val username = p.username
       <.nav(
-        ^.className := "light-green darken-3",
+        ^.className := "teal darken-2",
         ^.role := "navigation",
         <.div(
           ^.className := "nav-wrapper container",

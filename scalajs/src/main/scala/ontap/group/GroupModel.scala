@@ -3,6 +3,7 @@ package ontap.group
 import diode.data.{Pot, Ready}
 import diode.{Action, ActionHandler, Effect, ModelRW}
 import ontap.Database
+import ontap.auth.LogOutAction
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -44,5 +45,7 @@ class GroupHandler[M](modelRW: ModelRW[M, GroupModel]) extends ActionHandler(mod
       }
     case NewMemberErrorAction(error) =>
       updated(value.copy(newMemberError = Some(error.getMessage)))
+    case LogOutAction =>
+      updated(value.copy(group = Pot.empty, newMemberError = None))
   }
 }

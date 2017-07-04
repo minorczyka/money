@@ -17,7 +17,7 @@ object AppCircuit extends Circuit[AppModel] with ReactConnector[AppModel] {
     GroupModel(Pot.empty, None)
   )
 
-  override val actionHandler = composeHandlers(
+  override val actionHandler = foldHandlers(
     new AuthHandler(zoomTo(_.authModel)),
     new HomeHandler(zoomTo(_.homeModel)),
     new GroupHandler(zoomTo(_.groupModel))
