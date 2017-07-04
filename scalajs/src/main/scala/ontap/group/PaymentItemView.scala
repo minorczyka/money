@@ -23,7 +23,7 @@ object PaymentItemView {
       p.ctl.link(EditPaymentPage(p.groupKey, p.paymentDetails.key))(^.className := "collection-item",
         <.b(name),
         date,
-        <.span(^.className := "right", s"${cost} zł"),
+        <.span(^.className := "right", "%.2f zł".format(cost)),
         <.br,
         payerName
       )

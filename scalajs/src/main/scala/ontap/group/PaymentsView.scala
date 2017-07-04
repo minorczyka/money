@@ -9,11 +9,15 @@ object PaymentsView {
 
   case class Props(groupDetails: GroupDetails, ctl: RouterCtl[AppPage])
 
+  def sortableDate(date: String): String = {
+    date.substring(6, 10) + date.substring(3, 5) + date.substring(0, 2)
+  }
+
   class Backend($: BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement = {
       val ctl = p.ctl
       val groupKey = p.groupDetails.key
-      val payments = p.groupDetails.payments.toSeq.sortBy(_._2.date)
+      val payments = p.groupDetails.payments.toSeq.sortBy(x => sortableDate(x._2.date))
       val members = p.groupDetails.members
       <.div(
         <.h4("Payments",

@@ -47,7 +47,7 @@ object MembersView {
             <.li(^.key := x.key, ^.className := "collection-item",
               x.username,
               <.span(^.classSet("right" -> true, "green-text" -> (x.balance >= 0), "red-text" -> (x.balance < 0)),
-                s"${x.balance / 100.0} zł"
+                "%.2f zł".format(x.balance / 100.0)
               )
             )
           )

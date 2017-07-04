@@ -35,7 +35,7 @@ object PaymentView {
       )
       val name = payment.map(_.name).getOrElse("")
       val date = payment.map(_.date).getOrElse("")
-      val cost = payment.map(x => (x.cost / 100.0).toString).getOrElse("")
+      val cost = payment.map(x => "%.2f".format(x.cost / 100.0)).getOrElse("")
       val payer = payment.map(_.payer).getOrElse("")
       val people = payment.map(_.people).getOrElse(Seq())
       val description = payment.map(_.description).getOrElse("")
