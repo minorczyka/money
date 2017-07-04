@@ -44,11 +44,7 @@ object HomeView {
                   <.span("Create")
                 )
               )
-            )
-          )
-        ),
-        <.div(^.className := "row",
-          <.div(^.className := "col s12",
+            ),
             groups match {
               case Pending(_) => SharedView.circularLoading
               case Empty => <.div()
