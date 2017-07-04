@@ -44,7 +44,7 @@ object SignUpView {
                 <.form(^.className := "container",
                   <.div(^.className := "row",
                     <.div(^.className := "input-field col s12",
-                      textInput.ref(emailRef = _),
+                      emailInput.ref(emailRef = _),
                       <.label("Email")
                     )
                   ),
