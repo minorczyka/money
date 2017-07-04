@@ -100,7 +100,11 @@ object Database {
         val groupsRef = database.ref(s"user/${user.uid}/groups")
         groupsRef.on("value", (snapshot, _) => {
           val values = snapshot.`val`().asInstanceOf[js.Dictionary[Any]]
-          val groups = values.map(i => Group(i._1, i._2.asInstanceOf[String])).toSeq
+          val groups = if (values != null) {
+            values.map(i => Group(i._1, i._2.asInstanceOf[String])).toSeq
+          } else {
+            Seq()
+          }
           f(groups)
         })
         Some(groupsRef)

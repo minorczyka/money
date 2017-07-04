@@ -47,7 +47,8 @@ object HomeView {
         ),
         <.div(^.className := "row",
           groups match {
-            case Pending(startTime) => SharedView.circularLoading
+            case Pending(_) => SharedView.circularLoading
+            case Empty => <.div()
             case Ready(x) =>
               <.div(^.className := "collection",
                 x.toVdomArray(g => ctl.link(GroupPage(g.key))(^.key := g.key, ^.className := "collection-item", g.name))

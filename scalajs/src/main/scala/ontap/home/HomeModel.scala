@@ -18,7 +18,7 @@ class HomeHandler[M](modelRW: ModelRW[M, HomeModel]) extends ActionHandler(model
     case LoadingGroupsAction =>
       updated(value.copy(groups = Pot.empty.pending()))
     case GroupsLoadedAction(groups) =>
-      updated(value.copy(groups = value.groups.ready(groups)))
+      updated(value.copy(groups = if (groups.isEmpty) { Pot.empty } else { value.groups.ready(groups) }))
     case GroupsFailedAction(error) =>
       updated(value.copy(groups = value.groups.fail(error)))
     case LogOutAction =>
