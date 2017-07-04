@@ -33,28 +33,32 @@ object HomeView {
       val groups = proxy.groups
       <.div(
         <.div(^.className := "row",
-          <.form(^.action := "#", ^.className := "form-flex",
-            <.div(^.className := "input-field form-flex-item",
-              SharedView.textInput.ref(groupNameRef = _)(^.id := "group-name"),
-              <.label(^.`for` := "group-name", "Group name")
-            ),
-            <.div(^.className := "input-field",
-              <.div(^.className := "btn", ^.onClick --> createGroup,
-                <.span("Create")
+          <.div(^.className := "col s12",
+            <.form(^.action := "#", ^.className := "form-flex",
+              <.div(^.className := "input-field form-flex-item",
+                SharedView.textInput.ref(groupNameRef = _)(^.id := "group-name"),
+                <.label(^.`for` := "group-name", "Group name")
+              ),
+              <.div(^.className := "input-field",
+                <.div(^.className := "btn", ^.onClick --> createGroup,
+                  <.span("Create")
+                )
               )
             )
           )
         ),
         <.div(^.className := "row",
-          groups match {
-            case Pending(_) => SharedView.circularLoading
-            case Empty => <.div()
-            case Ready(x) =>
-              <.div(^.className := "collection",
-                x.toVdomArray(g => ctl.link(GroupPage(g.key))(^.key := g.key, ^.className := "collection-item", g.name))
-              )
-            case _ => <.div()
-          }
+          <.div(^.className := "col s12",
+            groups match {
+              case Pending(_) => SharedView.circularLoading
+              case Empty => <.div()
+              case Ready(x) =>
+                <.div(^.className := "collection",
+                  x.toVdomArray(g => ctl.link(GroupPage(g.key))(^.key := g.key, ^.className := "collection-item", g.name))
+                )
+              case _ => <.div()
+            }
+          )
         )
       )
     }
