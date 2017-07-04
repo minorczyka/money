@@ -28,7 +28,7 @@ object GroupView {
           case Ready(g) =>
             <.div(
               <.div(^.className := "col l7 s12",
-                PaymentsView(p.groupKey, g.payments, p.ctl)
+                PaymentsView(p.groupKey, g.members, g.payments, p.ctl)
               ),
               <.div(^.className := "col l5 s12",
                 MembersView(g.members, newMemberError)

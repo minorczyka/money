@@ -99,14 +99,18 @@ object PaymentView {
               <.section
             )
           ),
-          <.button(^.className := "col s12 btn btn-large waves-effect indigo", ^.`type` := "submit", "Submit")
+          <.button(^.className := "col s12 btn btn-large waves-effect", ^.`type` := "submit", "Submit")
         )
       )
     }
 
     def start = Callback {
       val jQuery = js.Dynamic.global.jQuery
-      jQuery(".datepicker").pickadate()
+      jQuery(".datepicker").pickadate(js.Dynamic.literal(
+        format = "dd-mm-yyyy",
+//        formatSubmit = "yyyy/mm/dd",
+        firstDay = 1
+      ))
       jQuery("select").material_select()
     }
   }
