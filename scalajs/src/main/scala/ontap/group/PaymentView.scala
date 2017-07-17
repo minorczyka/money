@@ -80,8 +80,9 @@ object PaymentView {
         case _ => defaultOption
       }
 
+      val title = payment.map(_ => "Edit payment").getOrElse("Add new payment")
       <.div(^.className := "row",
-        <.h4(^.className := "col s12", "Add new payment"),
+        <.h4(^.className := "col s12", title),
         <.form(^.className := "col s12", ^.onSubmit ==> submit,
           <.div(^.className := "input-field",
             textInput.ref(nameRef = _)(^.required := true, ^.defaultValue := name),
