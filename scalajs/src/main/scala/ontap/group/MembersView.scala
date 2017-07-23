@@ -38,7 +38,7 @@ object MembersView {
     }
 
     def render(p: Props): VdomElement = {
-      val members = membersWithBalance(p.groupDetails).sortBy(_.username)
+      val members = membersWithBalance(p.groupDetails).sortBy(x => x.username.toLowerCase)
       val newMemberError = p.newMemberError
       membersWithBalance(p.groupDetails)
       <.div(

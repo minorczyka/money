@@ -93,16 +93,16 @@ object PaymentView {
             <.label("Date")
           ),
           <.div(^.className := "input-field",
-            moneyInput.ref(costRef = _)(^.required := true, ^.defaultValue := cost),
-            <.label("Cost")
-          ),
-          <.div(^.className := "input-field",
             selectInput.ref(payerRef = _)(^.defaultValue := "", ^.defaultValue := payer, options),
             <.label("Payer")
           ),
           <.div(^.className := "input-field",
             multiSelectInput.ref(peopleRef = _)(^.defaultValue := people.toJSArray, options),
             <.label("People")
+          ),
+          <.div(^.className := "input-field",
+            moneyInput.ref(costRef = _)(^.required := true, ^.defaultValue := cost),
+            <.label("Cost")
           ),
           <.div(^.className := "input-field",
             textAreaInput.ref(descriptionRef = _)(^.defaultValue := description),

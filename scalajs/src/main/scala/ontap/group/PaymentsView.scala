@@ -17,7 +17,7 @@ object PaymentsView {
     def render(p: Props): VdomElement = {
       val ctl = p.ctl
       val groupKey = p.groupDetails.key
-      val payments = p.groupDetails.payments.toSeq.sortBy(x => sortableDate(x._2.date))
+      val payments = p.groupDetails.payments.toSeq.sortBy(x => sortableDate(x._2.date))(Ordering[String].reverse)
       val members = p.groupDetails.members
       <.div(
         <.h4("Payments",
