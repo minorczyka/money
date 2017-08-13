@@ -6,7 +6,7 @@ import firebase.database.Reference
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
-import ontap.shared.{ModalView, SharedView}
+import ontap.shared.SharedView
 import ontap.{AppCircuit, AppPage, Database, GroupPage}
 import org.scalajs.dom.raw.HTMLInputElement
 

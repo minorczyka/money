@@ -7,7 +7,8 @@ import ontap.auth.LogOutAction
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class GroupDetails(key: String, name: String, members: Map[String, String], payments: Map[String, PaymentDetails])
+case class GroupDetails(key: String, name: String, members: Map[String, String],
+                        payments: Map[String, PaymentDetails], paymentsPage: Int)
 case class UserDetails(uid: String, username: String, email: String)
 case class PaymentDetails(key: String, name: String, description: String, date: String, cost: Int, payer: String, people: Seq[String])
 case class GroupMember(key: String, username: String, balance: Int)
@@ -20,6 +21,7 @@ case class GroupDetailsFailedAction(error: Throwable) extends Action
 case class AddNewMemberAction(email: String) extends Action
 case class NewMemberDetailsAction(userDetails: UserDetails) extends Action
 case class NewMemberErrorAction(error: Throwable) extends Action
+case class ChangePaymentsPage(page: Int) extends Action
 
 class GroupHandler[M](modelRW: ModelRW[M, GroupModel]) extends ActionHandler(modelRW) {
 
@@ -45,6 +47,12 @@ class GroupHandler[M](modelRW: ModelRW[M, GroupModel]) extends ActionHandler(mod
       }
     case NewMemberErrorAction(error) =>
       updated(value.copy(newMemberError = Some(error.getMessage)))
+    case ChangePaymentsPage(page) =>
+      value.group match {
+        case Ready(group) =>
+          updated(value.copy(group = value.group.ready(group.copy(paymentsPage = page))))
+        case _ => noChange
+      }
     case LogOutAction =>
       updated(value.copy(group = Pot.empty, newMemberError = None))
   }

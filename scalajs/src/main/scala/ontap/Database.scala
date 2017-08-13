@@ -150,7 +150,7 @@ object Database {
                 .toMap
             case None => Map()
           }
-          val group = GroupDetails(groupId, name, members, payments)
+          val group = GroupDetails(groupId, name, members, payments, 0)
           f(group)
         })
         Some(groupRef)

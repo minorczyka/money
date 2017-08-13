@@ -3,9 +3,12 @@ package ontap.group
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
-import ontap.{AppPage, NewPaymentPage}
+import ontap.shared.PaginationView
+import ontap.{AppCircuit, AppPage, NewPaymentPage}
 
 object PaymentsView {
+
+  val pageSize = 10
 
   case class Props(groupDetails: GroupDetails, ctl: RouterCtl[AppPage])
 
@@ -17,7 +20,12 @@ object PaymentsView {
     def render(p: Props): VdomElement = {
       val ctl = p.ctl
       val groupKey = p.groupDetails.key
-      val payments = p.groupDetails.payments.toSeq.sortBy(x => sortableDate(x._2.date))(Ordering[String].reverse)
+      val paymentsPage = p.groupDetails.paymentsPage
+      val paymentsFrom = p.groupDetails.paymentsPage * pageSize
+      val paymentsTo = (p.groupDetails.paymentsPage + 1) * pageSize
+      val allPayments = p.groupDetails.payments.toSeq
+      val payments = allPayments.sortBy(x => sortableDate(x._2.date))(Ordering[String].reverse)
+        .slice(paymentsFrom, paymentsTo)
       val members = p.groupDetails.members
       <.div(
         <.h4("Payments",
@@ -26,8 +34,11 @@ object PaymentsView {
         if (payments.isEmpty) {
           <.div
         } else {
-          <.ul(^.className := "collection",
-            payments.toVdomArray(x => PaymentItemView(groupKey, x._2, members, ctl))
+          <.div(
+            <.ul(^.className := "collection",
+              payments.toVdomArray(x => PaymentItemView(groupKey, x._2, members, ctl))
+            ),
+            PaginationView(paymentsPage, allPayments.size, pageSize, (x) => AppCircuit.dispatch(ChangePaymentsPage(x)))
           )
         }
       )
