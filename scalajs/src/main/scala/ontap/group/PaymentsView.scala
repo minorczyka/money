@@ -4,7 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
 import ontap.shared.PaginationView
-import ontap.{AppCircuit, AppPage, NewPaymentPage}
+import ontap.{AppCircuit, AppPage, Database, NewPaymentPage}
 
 object PaymentsView {
 
@@ -27,6 +27,7 @@ object PaymentsView {
       val payments = allPayments.sortBy(x => sortableDate(x._2.date))(Ordering[String].reverse)
         .slice(paymentsFrom, paymentsTo)
       val members = p.groupDetails.members
+      val userId = Database.loggedUser().map(u => u.uid).getOrElse("")
       <.div(
         <.h4("Payments",
           ctl.link(NewPaymentPage(groupKey))(^.className := "right waves-effect waves-light btn", "New payment")
@@ -36,7 +37,7 @@ object PaymentsView {
         } else {
           <.div(
             <.ul(^.className := "collection",
-              payments.toVdomArray(x => PaymentItemView(groupKey, x._2, members, ctl))
+              payments.toVdomArray(x => PaymentItemView(groupKey, x._2, members, userId, ctl))
             ),
             PaginationView(paymentsPage, allPayments.size, pageSize, (x) => AppCircuit.dispatch(ChangePaymentsPage(x)))
           )

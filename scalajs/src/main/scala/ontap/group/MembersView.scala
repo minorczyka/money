@@ -12,14 +12,10 @@ object MembersView {
 
   case class Props(groupDetails: GroupDetails, newMemberError: Option[String])
 
-  def costDivision(paymentDetails: PaymentDetails): Int = {
-    (paymentDetails.cost.toDouble / paymentDetails.people.size).ceil.toInt
-  }
-
   def membersWithBalance(groupDetails: GroupDetails): Seq[GroupMember] = {
     val payments = groupDetails.payments.values
-    val plus = payments.groupBy(_.payer).mapValues(_.map(p => costDivision(p) * p.people.size).sum)
-    val minus = payments.flatMap(p => p.people.map(x => (x, costDivision(p))))
+    val plus = payments.groupBy(_.payer).mapValues(_.map(p => p.costDivision() * p.people.size).sum)
+    val minus = payments.flatMap(p => p.people.map(x => (x, p.costDivision())))
       .groupBy(_._1)
       .mapValues(_.map(_._2).sum)
     groupDetails.members.map(m =>

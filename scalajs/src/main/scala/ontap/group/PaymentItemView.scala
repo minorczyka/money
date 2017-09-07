@@ -7,33 +7,33 @@ import ontap.{AppPage, EditPaymentPage}
 
 object PaymentItemView {
 
-  case class Props(groupKey: String, paymentDetails: PaymentDetails, members: Map[String, String], ctl: RouterCtl[AppPage])
+  case class Props(groupKey: String, paymentDetails: PaymentDetails, members: Map[String, String], userId: String, ctl: RouterCtl[AppPage])
 
   class Backend($: BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement = {
-      val name = p.paymentDetails.name
-      val date = if (p.paymentDetails.date.isEmpty) {
+      val groupKey = p.groupKey
+      val paymentDetails = p.paymentDetails
+      val name = paymentDetails.name
+      val members = p.members
+      val userId = p.userId
+      val date = if (paymentDetails.date.isEmpty) {
         ""
       } else {
-        s" (${p.paymentDetails.date})"
+        s" (${paymentDetails.date})"
       }
-      val members = p.members
-      val payerName = members.getOrElse(p.paymentDetails.payer, "")
-      val cost = p.paymentDetails.cost / 100.0
-      p.ctl.link(EditPaymentPage(p.groupKey, p.paymentDetails.key))(^.className := "collection-item",
+      val payerName = members.getOrElse(paymentDetails.payer, "")
+      val cost = paymentDetails.cost / 100.0
+      val moneyGain = if (members.size > 2) paymentDetails.moneyGain(userId) else None
+      p.ctl.link(EditPaymentPage(groupKey, paymentDetails.key))(^.className := "collection-item",
         <.b(name),
         date,
         <.span(^.className := "right", "%.2f zł".format(cost)),
         <.br,
-        payerName
+        payerName,
+        moneyGain.whenDefined(gain =>
+          <.small(^.classSet("right" -> true, "green-text" -> (gain >= 0), "red-text" -> (gain < 0)), "(%.2f zł)".format(gain / 100.0))
+        )
       )
-//      <.a(^.className := "collection-item", ^.href := "#",
-//        <.b(name),
-//        date,
-//        <.span(^.className := "right", s"${cost} zł"),
-//        <.br,
-//        payerName
-//      )
     }
   }
 
@@ -42,6 +42,6 @@ object PaymentItemView {
     .renderBackend[Backend]
     .build
 
-  def apply(groupKey: String, paymentDetails: PaymentDetails, members: Map[String, String], ctl: RouterCtl[AppPage]) =
-    component.withKey(paymentDetails.key)(Props(groupKey, paymentDetails, members, ctl))
+  def apply(groupKey: String, paymentDetails: PaymentDetails, members: Map[String, String], userId: String, ctl: RouterCtl[AppPage]) =
+    component.withKey(paymentDetails.key)(Props(groupKey, paymentDetails, members, userId, ctl))
 }
