@@ -26,6 +26,11 @@ object PaymentView {
     private var peopleRef: HTMLSelectElement = _
     private var descriptionRef: HTMLTextAreaElement = _
 
+    def openDeleteModal = Callback {
+      val jQuery = js.Dynamic.global.jQuery
+      jQuery("#delete-modal").modal("open")
+    }
+
     def render(p: Props, s: State): VdomElement = {
       val ctl = p.ctl
       val proxy = p.proxy()
@@ -72,6 +77,18 @@ object PaymentView {
         false
       }
 
+      val groupKey = proxy.group.toOption.map(g => g.key)
+      val paymentKey = p.paymentKey
+
+      def delete = Callback {
+        (groupKey, paymentKey) match {
+          case (Some(gk), Some(pk)) =>
+            Database.deletePayment(gk, pk)
+            ctl.set(GroupPage(gk)).runNow()
+          case _ => println("There is no active group or payment key!")
+        }
+      }
+
       val defaultOption = <.option(^.value := "", ^.disabled := true, "Choose")
       val options = proxy.group match {
         case Ready(g) =>
@@ -82,7 +99,12 @@ object PaymentView {
 
       val title = payment.map(_ => "Edit payment").getOrElse("Add new payment")
       <.div(^.className := "row",
-        <.h4(^.className := "col s12", title),
+        <.h4(^.className := "col s12", title, payment.whenDefined(_ =>
+            <.a(^.className := "waves-effect waves-light btn right", ^.onClick --> openDeleteModal,
+              <.i(^.className := "material-icons", "delete")
+            )
+          )
+        ),
         <.form(^.className := "col s12", ^.onSubmit ==> submit,
           <.div(^.className := "input-field",
             textInput.ref(nameRef = _)(^.required := true, ^.defaultValue := name),
@@ -115,6 +137,16 @@ object PaymentView {
             )
           ),
           <.button(^.className := "col s12 btn btn-large waves-effect", ^.`type` := "submit", "Submit")
+        ),
+        <.div(^.className := "modal", ^.id := "delete-modal",
+          <.div(^.className := "modal-content",
+            <.h4("Delete payment"),
+            <.p("Do you really want to delete this payment?")
+          ),
+          <.div(^.className := "modal-footer",
+            <.a(^.className := "modal-action modal-close waves-effect waves-red btn-flat ", "No"),
+            <.a(^.className := "modal-action modal-close waves-effect waves-green btn-flat", ^.onClick --> delete, "Yes")
+          )
         )
       )
     }
@@ -126,6 +158,7 @@ object PaymentView {
         firstDay = 1
       ))
       jQuery("select").material_select()
+      jQuery(".modal").modal()
 
       val materialize = js.Dynamic.global.Materialize
       materialize.updateTextFields()

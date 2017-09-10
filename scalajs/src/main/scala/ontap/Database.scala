@@ -207,4 +207,9 @@ object Database {
       "people" -> paymentDetails.people.map(x => (x, "true")).toMap.toJSDictionary
     ))
   }
+
+  def deletePayment(groupKey: String, paymentKey: String): Unit = {
+    val paymentRef = database.ref(s"groups/$groupKey/payments/${paymentKey}")
+    paymentRef.remove()
+  }
 }

@@ -23,7 +23,7 @@ object PaymentItemView {
       }
       val payerName = members.getOrElse(paymentDetails.payer, "")
       val cost = paymentDetails.cost / 100.0
-      val moneyGain = if (members.size > 2) paymentDetails.moneyGain(userId) else None
+      val moneyGain = paymentDetails.moneyGain(userId)
       p.ctl.link(EditPaymentPage(groupKey, paymentDetails.key))(^.className := "collection-item",
         <.b(name),
         date,
