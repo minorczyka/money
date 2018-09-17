@@ -13,19 +13,19 @@ import scala.scalajs.js.annotation.ScalaJSDefined
 object Database {
 
   private val devFirebaseConfig = FirebaseConfig(
-    apiKey = "AIzaSyApjqr8k7JbuHMcTHMNag2epZ4QbtqAHSQ",
-    authDomain =  "money-cb2f0.firebaseapp.com",
-    databaseURL = "https://money-cb2f0.firebaseio.com",
+    apiKey = "",
+    authDomain =  "",
+    databaseURL = "",
     storageBucket = "",
-    messagingSenderId = "904785204869"
+    messagingSenderId = ""
   )
 
   private val firebaseConfig = FirebaseConfig(
-    apiKey = "AIzaSyD2IJ_pnVbUF9ddk9pFPxgiPJyFlbCR7zw",
-    authDomain =  "money-2de74.firebaseapp.com",
-    databaseURL = "https://money-2de74.firebaseio.com",
+    apiKey = "",
+    authDomain =  "",
+    databaseURL = "",
     storageBucket = "",
-    messagingSenderId = "43882604043"
+    messagingSenderId = ""
   )
 
   private val app = Firebase.initializeApp(firebaseConfig, "money-cb2f0")
